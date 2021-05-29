@@ -1,26 +1,25 @@
 import React,  { useState } from 'react';
 import { Button, TextField, Switch, FormControlLabel } from "@material-ui/core";
 
-function FormularioCadastro() {
+function FormularioCadastro({aoEnviar, validarCPF}) {
     const [nome, setNome] = useState("");
     const [sobrenome, setSobrenome] = useState("");
-    //const [CPF, setCPF] = useState("");
+    const [cpf, setCpf] = useState("");
+    const [promocoes, setPromocoes] = useState(true);
+    const [novidades, setNovidades] = useState(true);
+    const [erros, setErros] = useState({cpf: {valido:true, texto:""}})
 
     return (
         <form 
             onSubmit={(event) => { 
                 event.preventDefault();
-                console.log(nome, sobrenome); 
-                }}
+                aoEnviar({nome, sobrenome, cpf, novidades, promocoes});
+            }}
         >
             <TextField
                 value={nome}
                 onChange={(event) => { 
-                    let tmpNome = event.target.value;
-                    if(tmpNome.length >= 3){
-                        tmpNome = tmpNome.substr(0,3);
-                    }
-                    setNome(tmpNome);
+                    setNome(event.target.value)
                 }} 
                 id="nome" 
                 label="Nome" 
@@ -41,10 +40,36 @@ function FormularioCadastro() {
                 fullWidth 
             />
 
-            <TextField id="cpf" label="CPF" variant="outlined" margin="normal" fullWidth />
+            <TextField
+                value = {cpf}
+                onChange={(event) => { 
+                    setCpf(event.target.value);
+                }} 
+                onBlur={(event) => {
+                    const isValid = validarCPF(cpf);
+                    setErros({cpf: isValid});
+                }}
+                error={!erros.cpf.valido}
+                helperText={erros.cpf.texto}
+                id="cpf" 
+                label="CPF" 
+                variant="outlined" 
+                margin="normal" 
+                fullWidth 
+            />
 
-            <FormControlLabel label="Promoções" control={<Switch name="promocoes" defaultChecked color="primary" />} />
-            <FormControlLabel label="Novidades" control={<Switch name="novidades" defaultChecked color="primary" />} />
+            <FormControlLabel 
+                label="Promoções" 
+                control={<Switch onChange={(event) => {
+                    setPromocoes(event.target.checked)
+                }} checked={promocoes} name="promocoes" color="primary" />} 
+            />
+            <FormControlLabel 
+                label="Novidades" 
+                control={<Switch onChange={(event) => {
+                    setNovidades(event.target.checked)
+                }} checked={novidades} name="novidades" color="primary" />} 
+            />
 
             <Button type="submit" variant="contained" color="primary">
                 Cadastrar
